@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>頭痛ログ</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+    <nav class="tab-bar">
+        <button onclick="showSection('input')">入力</button>
+        <button onclick="showSection('calendar')">カレンダー</button>
+        <button onclick="showSection('list')">一覧</button>
+        <button onclick="showSection('report')">レポート</button>
+    </nav>
+
+    <main id="app">
+        <section id="input" class="active">
+            <h2>頭痛の記録</h2>
+            <form id="recordForm">
+                <label>日付</label>
+                <input type="text" id="date" placeholder="日付を選択" required>
+                
+                <div class="time-group">
+                    <div>
+                        <label>開始時刻</label>
+                        <input type="text" id="startTime" class="time-picker" placeholder="00:00">
+                    </div>
+                    <div>
+                        <label>終了時刻</label>
+                        <input type="text" id="endTime" class="time-picker" placeholder="00:00">
+                    </div>
+                </div>
+
+                <label>頭痛の度合い</label>
+                <div class="degree-group">
+                    <input type="radio" name="degree" value="1" id="d1" checked><label for="d1">軽</label>
+                    <input type="radio" name="degree" value="2" id="d2"><label for="d2">中</label>
+                    <input type="radio" name="degree" value="3" id="d3"><label for="d3">重</label>
+                </div>
+
+                <label>薬の服用</label>
+                <select id="medication" onchange="toggleMedTime()">
+                    <option value="false">飲んでいない</option>
+                    <option value="true">飲んだ</option>
+                </select>
+                
+                <div id="medTimeContainer" style="display:none;">
+                    <label>服用時刻</label>
+                    <input type="text" id="medTime" class="time-picker" placeholder="00:00">
+                </div>
+
+                <label>メモ</label>
+                <textarea id="memo" rows="3"></textarea>
+
+                <button type="submit" class="submit-btn">保存する</button>
+            </form>
+        </section>
+
+        <section id="calendar">
+            <h2>カレンダー</h2>
+            <div id="calendarDisplay"></div>
+        </section>
+
+        <section id="list">
+            <h2>記録一覧</h2>
+            <div id="logList"></div>
+        </section>
+
+        <section id="report">
+            <h2>月間レポート</h2>
+            <div class="stats-card">
+                <p>今月の頭痛回数: <span id="countHeadache">0</span>回</p>
+                <p>今月の服用回数: <span id="countMed">0</span>回</p>
+                <p>最後の頭痛から: <span id="daysSince">0</span>日経過</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
