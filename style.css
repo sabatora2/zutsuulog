@@ -1,0 +1,38 @@
+:root {
+    --primary: #6c5ce7;
+    --bg: #f9f9fb;
+    --text: #2d3436;
+}
+
+body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 70px; }
+
+.tab-bar {
+    position: fixed; bottom: 0; width: 100%; background: #fff;
+    display: flex; border-top: 1px solid #ddd;
+}
+.tab-bar button {
+    flex: 1; padding: 15px; border: none; background: none; font-weight: bold;
+}
+
+main { padding: 20px; max-width: 500px; margin: auto; }
+section { display: none; }
+section.active { display: block; }
+
+label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; }
+input, select, textarea {
+    width: 100%; padding: 12px; margin-top: 5px;
+    border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+}
+
+.time-group { display: flex; gap: 10px; }
+.degree-group { display: flex; gap: 10px; margin-top: 5px; }
+.degree-group label { margin: 0; background: #eee; padding: 10px; flex: 1; text-align: center; border-radius: 8px; }
+input[type="radio"]:checked + label { background: var(--primary); color: #fff; }
+
+.submit-btn {
+    width: 100%; background: var(--primary); color: white; border: none;
+    padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 1em;
+}
+
+.stats-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.log-item { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid var(--primary); }
