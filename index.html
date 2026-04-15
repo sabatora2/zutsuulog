@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>頭痛ログ Pro v2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>頭痛ログ</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -12,13 +12,11 @@
 <body>
     <header>
         <h1 id="pageTitle">記録</h1>
-        <button id="resetBtn" onclick="prepareNewEntry()" style="position:absolute; right:15px; top:15px; display:none;">新規</button>
     </header>
 
     <main id="app">
         <section id="input" class="active">
             <form id="recordForm">
-                <input type="hidden" id="editId">
                 <div class="field">
                     <label>日付</label>
                     <input type="text" id="date" readonly>
@@ -29,7 +27,7 @@
                         <label>開始</label>
                         <input type="text" id="startTime" class="time-picker" placeholder="--:--">
                     </div>
-                    <div class="field">
+                    <div class="field" style="margin-left: 10px;">
                         <label>終了</label>
                         <input type="text" id="endTime" class="time-picker" placeholder="--:--">
                     </div>
@@ -38,8 +36,8 @@
                 <div class="field">
                     <label>頭痛の度合い</label>
                     <div class="degree-group">
-                        <input type="radio" name="degree" value="1" id="d1" checked><label for="d1">軽</label>
-                        <input type="radio" name="degree" value="2" id="d2"><label for="d2">中</label>
+                        <input type="radio" name="degree" value="1" id="d1"><label for="d1">軽</label>
+                        <input type="radio" name="degree" value="2" id="d2" checked><label for="d2">中</label>
                         <input type="radio" name="degree" value="3" id="d3"><label for="d3">重</label>
                     </div>
                 </div>
@@ -47,47 +45,66 @@
                 <div class="field">
                     <label>薬の服用</label>
                     <select id="medication" onchange="toggleMedTime()">
+                        <option value="true" selected>飲んだ</option>
                         <option value="false">飲んでいない</option>
-                        <option value="true">飲んだ</option>
                     </select>
                 </div>
                 
-                <div id="medTimeContainer" class="field" style="display:none;">
+                <div id="medTimeContainer" class="field">
                     <label>服用時刻</label>
                     <input type="text" id="medTime" class="time-picker" placeholder="--:--">
                 </div>
 
                 <div class="field">
                     <label>メモ</label>
-                    <textarea id="memo" rows="3" placeholder="状況など"></textarea>
+                    <textarea id="memo" rows="2" placeholder="メモ"></textarea>
                 </div>
 
-                <button type="submit" id="submitBtn" class="submit-btn">保存してカレンダーへ</button>
+                <button type="submit" class="submit-btn">保存してカレンダーへ</button>
             </form>
         </section>
 
         <section id="calendar">
             <div id="calendarDisplay"></div>
+            <div class="spacer"></div>
         </section>
 
         <section id="list">
             <div id="logList"></div>
+            <div class="spacer"></div>
         </section>
 
         <section id="report">
             <div class="stats-grid">
-                <div class="stat-item"><span class="stat-label">今月の頭痛</span><span class="stat-value"><span id="countHeadache">0</span>回</span></div>
-                <div class="stat-item"><span class="stat-label">今月の服用</span><span class="stat-value"><span id="countMed">0</span>回</span></div>
-                <div class="stat-item full"><span class="stat-label">最後の頭痛から</span><span class="stat-value"><span id="daysSince">0</span>日経過</span></div>
+                <div class="stat-item">
+                    <span class="stat-label">今月の頭痛</span>
+                    <span class="stat-value"><span id="countHeadache">0</span>回</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">今月の服用</span>
+                    <span class="stat-value"><span id="countMed">0</span>回</span>
+                </div>
+                <div class="stat-item full">
+                    <span class="stat-label">最後の頭痛から</span>
+                    <span class="stat-value"><span id="daysSince">0</span>日経過</span>
+                </div>
             </div>
         </section>
     </main>
 
     <nav class="tab-bar">
-        <button onclick="showSection('input', '記録')"><span class="material-icons">edit</span><span>入力</span></button>
-        <button onclick="showSection('calendar', 'カレンダー')"><span class="material-icons">calendar_month</span><span>日誌</span></button>
-        <button onclick="showSection('list', '履歴')"><span class="material-icons">list</span><span>一覧</span></button>
-        <button onclick="showSection('report', '統計')"><span class="material-icons">bar_chart</span><span>分析</span></button>
+        <button onclick="showSection('input', '記録')" id="btn-input" class="active">
+            <span class="material-icons">edit</span><span>入力</span>
+        </button>
+        <button onclick="showSection('calendar', 'カレンダー')" id="btn-calendar">
+            <span class="material-icons">calendar_month</span><span>日誌</span>
+        </button>
+        <button onclick="showSection('list', '履歴')" id="btn-list">
+            <span class="material-icons">list</span><span>一覧</span>
+        </button>
+        <button onclick="showSection('report', '統計')" id="btn-report">
+            <span class="material-icons">bar_chart</span><span>分析</span>
+        </button>
     </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
