@@ -5,73 +5,67 @@
     --text: #2f3640;
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation; /* ズームやダブルタップの抑制 */
+}
+
+html, body { 
+    width: 100%;
+    height: 100%;
+    margin: 0; padding: 0;
+    overflow-x: hidden; /* 横スクロール絶対禁止 */
+}
 
 body { 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px;
-    overflow-x: hidden; /* 横スクロール防止 */
-    width: 100vw;
+    background: var(--bg); color: var(--text);
+    padding-bottom: 80px;
 }
 
 header {
     background: var(--card); padding: 15px; text-align: center;
     border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100;
 }
-header h1 { margin: 0; font-size: 1.2rem; }
 
-main { padding: 15px; width: 100%; max-width: 100%; }
+main { 
+    padding: 10px; 
+    width: 100%;
+    max-width: 100%; /* はみ出し防止 */
+}
 
-section { display: none; animation: fadeIn 0.3s; }
+section { display: none; }
 section.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* 入力文字のフォントサイズ調整（16px以上で自動ズームを回避） */
 label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.95rem; }
 input, select, textarea {
-    width: 100%; padding: 14px; font-size: 16px; 
+    width: 100%; padding: 12px; font-size: 16px; /* 16px以下だとiOSでズームされる */
     border: 1px solid #ccc; border-radius: 10px; background: var(--card);
 }
 
-.field { margin-bottom: 20px; }
-.time-group { display: flex; gap: 10px; }
+.field { margin-bottom: 15px; }
+.time-group { display: flex; gap: 8px; }
 .time-group .field { flex: 1; }
 
 .degree-group { display: flex; gap: 8px; }
-.degree-group label { 
-    flex: 1; text-align: center; background: #eee; padding: 12px;
-    border-radius: 8px; margin: 0; font-weight: normal; 
-}
+.degree-group label { flex: 1; text-align: center; background: #eee; padding: 12px; border-radius: 8px; margin: 0; }
+input[type="radio"]:checked + label { background: var(--primary); color: white; }
 input[type="radio"] { display: none; }
-input[type="radio"]:checked + label { background: var(--primary); color: white; font-weight: bold; }
 
 .submit-btn {
     width: 100%; background: var(--primary); color: white; border: none;
-    padding: 18px; border-radius: 12px; font-size: 1.1rem; font-weight: bold;
-    margin-top: 10px; box-shadow: 0 4px 10px rgba(125, 95, 255, 0.3);
+    padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: bold;
 }
 
-/* カレンダーの高さ調整 */
-#calendarDisplay { background: var(--card); padding: 10px; border-radius: 12px; font-size: 0.9rem; }
+#calendarDisplay { background: var(--card); border-radius: 12px; font-size: 0.85rem; padding: 5px; }
 
-/* ナビゲーションバー */
 .tab-bar {
-    position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
     background: var(--card); display: flex; border-top: 1px solid #ddd;
     padding-bottom: env(safe-area-inset-bottom);
 }
-.tab-bar button {
-    flex: 1; border: none; background: none; display: flex;
-    flex-direction: column; align-items: center; justify-content: center;
-    color: #888; transition: 0.2s;
-}
-.tab-bar button .material-icons { font-size: 24px; margin-bottom: 4px; }
-.tab-bar button span:last-child { font-size: 10px; }
+.tab-bar button { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; }
 .tab-bar button.active { color: var(--primary); }
 
-/* レポート */
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.stat-item { background: var(--card); padding: 20px; border-radius: 15px; text-align: center; }
-.stat-item.full { grid-column: span 2; }
-.stat-label { display: block; font-size: 0.8rem; color: #666; }
-.stat-value { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+.log-item { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
