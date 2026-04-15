@@ -1,38 +1,77 @@
 :root {
-    --primary: #6c5ce7;
-    --bg: #f9f9fb;
-    --text: #2d3436;
+    --primary: #7d5fff;
+    --bg: #f5f6fa;
+    --card: #ffffff;
+    --text: #2f3640;
 }
 
-body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 70px; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-.tab-bar {
-    position: fixed; bottom: 0; width: 100%; background: #fff;
-    display: flex; border-top: 1px solid #ddd;
-}
-.tab-bar button {
-    flex: 1; padding: 15px; border: none; background: none; font-weight: bold;
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px;
+    overflow-x: hidden; /* 横スクロール防止 */
+    width: 100vw;
 }
 
-main { padding: 20px; max-width: 500px; margin: auto; }
-section { display: none; }
+header {
+    background: var(--card); padding: 15px; text-align: center;
+    border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100;
+}
+header h1 { margin: 0; font-size: 1.2rem; }
+
+main { padding: 15px; width: 100%; max-width: 100%; }
+
+section { display: none; animation: fadeIn 0.3s; }
 section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; }
+/* 入力文字のフォントサイズ調整（16px以上で自動ズームを回避） */
+label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.95rem; }
 input, select, textarea {
-    width: 100%; padding: 12px; margin-top: 5px;
-    border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+    width: 100%; padding: 14px; font-size: 16px; 
+    border: 1px solid #ccc; border-radius: 10px; background: var(--card);
 }
 
+.field { margin-bottom: 20px; }
 .time-group { display: flex; gap: 10px; }
-.degree-group { display: flex; gap: 10px; margin-top: 5px; }
-.degree-group label { margin: 0; background: #eee; padding: 10px; flex: 1; text-align: center; border-radius: 8px; }
-input[type="radio"]:checked + label { background: var(--primary); color: #fff; }
+.time-group .field { flex: 1; }
+
+.degree-group { display: flex; gap: 8px; }
+.degree-group label { 
+    flex: 1; text-align: center; background: #eee; padding: 12px;
+    border-radius: 8px; margin: 0; font-weight: normal; 
+}
+input[type="radio"] { display: none; }
+input[type="radio"]:checked + label { background: var(--primary); color: white; font-weight: bold; }
 
 .submit-btn {
     width: 100%; background: var(--primary); color: white; border: none;
-    padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 1em;
+    padding: 18px; border-radius: 12px; font-size: 1.1rem; font-weight: bold;
+    margin-top: 10px; box-shadow: 0 4px 10px rgba(125, 95, 255, 0.3);
 }
 
-.stats-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.log-item { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid var(--primary); }
+/* カレンダーの高さ調整 */
+#calendarDisplay { background: var(--card); padding: 10px; border-radius: 12px; font-size: 0.9rem; }
+
+/* ナビゲーションバー */
+.tab-bar {
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
+    background: var(--card); display: flex; border-top: 1px solid #ddd;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+.tab-bar button {
+    flex: 1; border: none; background: none; display: flex;
+    flex-direction: column; align-items: center; justify-content: center;
+    color: #888; transition: 0.2s;
+}
+.tab-bar button .material-icons { font-size: 24px; margin-bottom: 4px; }
+.tab-bar button span:last-child { font-size: 10px; }
+.tab-bar button.active { color: var(--primary); }
+
+/* レポート */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.stat-item { background: var(--card); padding: 20px; border-radius: 15px; text-align: center; }
+.stat-item.full { grid-column: span 2; }
+.stat-label { display: block; font-size: 0.8rem; color: #666; }
+.stat-value { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
