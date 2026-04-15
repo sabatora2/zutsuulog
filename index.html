@@ -2,84 +2,116 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>頭痛ログ</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>頭痛ログ Pro</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <nav class="tab-bar">
-        <button onclick="showSection('input')">入力</button>
-        <button onclick="showSection('calendar')">カレンダー</button>
-        <button onclick="showSection('list')">一覧</button>
-        <button onclick="showSection('report')">レポート</button>
-    </nav>
+    <header>
+        <h1 id="pageTitle">記録</h1>
+    </header>
 
     <main id="app">
         <section id="input" class="active">
-            <h2>頭痛の記録</h2>
             <form id="recordForm">
-                <label>日付</label>
-                <input type="text" id="date" placeholder="日付を選択" required>
+                <div class="field">
+                    <label>日付</label>
+                    <input type="text" id="date" readonly>
+                </div>
                 
                 <div class="time-group">
-                    <div>
-                        <label>開始時刻</label>
-                        <input type="text" id="startTime" class="time-picker" placeholder="00:00">
+                    <div class="field">
+                        <label>開始</label>
+                        <input type="text" id="startTime" class="time-picker" placeholder="--:--">
                     </div>
-                    <div>
-                        <label>終了時刻</label>
-                        <input type="text" id="endTime" class="time-picker" placeholder="00:00">
+                    <div class="field">
+                        <label>終了</label>
+                        <input type="text" id="endTime" class="time-picker" placeholder="--:--">
                     </div>
                 </div>
 
-                <label>頭痛の度合い</label>
-                <div class="degree-group">
-                    <input type="radio" name="degree" value="1" id="d1" checked><label for="d1">軽</label>
-                    <input type="radio" name="degree" value="2" id="d2"><label for="d2">中</label>
-                    <input type="radio" name="degree" value="3" id="d3"><label for="d3">重</label>
+                <div class="field">
+                    <label>頭痛の度合い</label>
+                    <div class="degree-group">
+                        <input type="radio" name="degree" value="1" id="d1" checked><label for="d1">軽</label>
+                        <input type="radio" name="degree" value="2" id="d2"><label for="d2">中</label>
+                        <input type="radio" name="degree" value="3" id="d3"><label for="d3">重</label>
+                    </div>
                 </div>
 
-                <label>薬の服用</label>
-                <select id="medication" onchange="toggleMedTime()">
-                    <option value="false">飲んでいない</option>
-                    <option value="true">飲んだ</option>
-                </select>
+                <div class="field">
+                    <label>薬の服用</label>
+                    <select id="medication" onchange="toggleMedTime()">
+                        <option value="false">飲んでいない</option>
+                        <option value="true">飲んだ</option>
+                    </select>
+                </div>
                 
-                <div id="medTimeContainer" style="display:none;">
+                <div id="medTimeContainer" class="field" style="display:none;">
                     <label>服用時刻</label>
-                    <input type="text" id="medTime" class="time-picker" placeholder="00:00">
+                    <input type="text" id="medTime" class="time-picker" placeholder="--:--">
                 </div>
 
-                <label>メモ</label>
-                <textarea id="memo" rows="3"></textarea>
+                <div class="field">
+                    <label>メモ</label>
+                    <textarea id="memo" rows="3" placeholder="状況など"></textarea>
+                </div>
 
-                <button type="submit" class="submit-btn">保存する</button>
+                <button type="submit" class="submit-btn">保存してカレンダーへ</button>
             </form>
         </section>
 
         <section id="calendar">
-            <h2>カレンダー</h2>
             <div id="calendarDisplay"></div>
         </section>
 
         <section id="list">
-            <h2>記録一覧</h2>
             <div id="logList"></div>
         </section>
 
         <section id="report">
-            <h2>月間レポート</h2>
-            <div class="stats-card">
-                <p>今月の頭痛回数: <span id="countHeadache">0</span>回</p>
-                <p>今月の服用回数: <span id="countMed">0</span>回</p>
-                <p>最後の頭痛から: <span id="daysSince">0</span>日経過</p>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">今月の頭痛</span>
+                    <span class="stat-value"><span id="countHeadache">0</span>回</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">今月の服用</span>
+                    <span class="stat-value"><span id="countMed">0</span>回</span>
+                </div>
+                <div class="stat-item full">
+                    <span class="stat-label">最後の頭痛から</span>
+                    <span class="stat-value"><span id="daysSince">0</span>日経過</span>
+                </div>
             </div>
         </section>
     </main>
 
+    <nav class="tab-bar">
+        <button onclick="showSection('input', '記録')">
+            <span class="material-icons">edit</span>
+            <span>入力</span>
+        </button>
+        <button onclick="showSection('calendar', 'カレンダー')">
+            <span class="material-icons">calendar_month</span>
+            <span>日誌</span>
+        </button>
+        <button onclick="showSection('list', '履歴')">
+            <span class="material-icons">list</span>
+            <span>一覧</span>
+        </button>
+        <button onclick="showSection('report', '統計')">
+            <span class="material-icons">bar_chart</span>
+            <span>分析</span>
+        </button>
+    </nav>
+
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
