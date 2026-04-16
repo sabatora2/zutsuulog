@@ -1,49 +1,72 @@
 let calendar;
 
+// Firebaseの準備ができるまで待機して初期化
 document.addEventListener('DOMContentLoaded', () => {
-    // 15分刻み設定
+    // 15分刻みのステップ設定
     const pickerConfig = {
-        enableTime: true, noCalendar: true, dateFormat: "H:i",
-        time_24hr: true, minuteIncrement: 15, disableMobile: false
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        minuteIncrement: 15,
+        disableMobile: false
     };
+
     flatpickr("#date", { locale: "ja", defaultDate: "today", dateFormat: "Y-m-d" });
     flatpickr(".time-picker", pickerConfig);
 
+    // カレンダーの初期描画（データは後ほど非同期で読み込み）
     initCalendar();
 });
 
+// カレンダー初期化
 function initCalendar() {
     const calendarEl = document.getElementById('calendarDisplay');
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'ja',
         height: 'auto',
-        events: getEvents(),
         headerToolbar: { left: 'prev', center: 'title', right: 'next' },
         eventClick: (info) => {
-            loadLogToForm(info.event.id); // カレンダータップで編集
+            loadLogToForm(info.event.id);
         }
     });
     calendar.render();
+    refreshEvents(); // データをFirebaseから取得
 }
 
-function getEvents() {
-    const logs = JSON.parse(localStorage.getItem('headacheLogs') || '[]');
-    return logs.map(log => ({
-        id: log.id,
-        title: log.degree == '3' ? '重' : (log.degree == '2' ? '中' : '軽'),
-        start: log.date,
-        color: log.degree == '3' ? '#ff4757' : (log.degree == '2' ? '#ffa502' : '#2ed573')
-    }));
+// Firebaseからデータを取得してカレンダーに反映
+async function refreshEvents() {
+    if (!window.db) return;
+    const q = window.fs.query(window.fs.collection(window.db, "headacheLogs"), window.fs.orderBy("timestamp", "desc"));
+    const querySnapshot = await window.fs.getDocs(q);
+    
+    const events = [];
+    querySnapshot.forEach((doc) => {
+        const log = doc.data();
+        events.push({
+            id: doc.id,
+            title: log.degree == '3' ? '重' : (log.degree == '2' ? '中' : '軽'),
+            start: log.date,
+            color: log.degree == '3' ? '#ff4757' : (log.degree == '2' ? '#ffa502' : '#2ed573')
+        });
+    });
+    calendar.setOption('events', events);
 }
 
-// 編集モードへの読み込み
-function loadLogToForm(id) {
-    const logs = JSON.parse(localStorage.getItem('headacheLogs') || '[]');
-    const log = logs.find(l => l.id == id);
+// フォームへの読み込み（修正用）
+async function loadLogToForm(id) {
+    // Firebaseから特定のドキュメントを取得
+    const docRef = window.fs.doc(window.db, "headacheLogs", id);
+    const docSnap = await window.fs.getDocs(window.fs.query(window.fs.collection(window.db, "headacheLogs")));
+    
+    // querySnapshotから対象を探す（または直接doc取得でも可）
+    let log;
+    docSnap.forEach(d => { if(d.id === id) log = d.data(); });
+    
     if (!log) return;
 
-    document.getElementById('editId').value = log.id;
+    document.getElementById('editId').value = id;
     document.getElementById('date').value = log.date;
     document.getElementById('startTime').value = log.start;
     document.getElementById('endTime').value = log.end;
@@ -54,7 +77,6 @@ function loadLogToForm(id) {
 
     toggleMedTime();
     
-    // UIを編集モードに切り替え
     document.getElementById('saveBtn').innerText = "修正を保存する";
     document.getElementById('deleteBtn').style.display = "block";
     document.getElementById('cancelBtn').style.display = "block";
@@ -62,23 +84,12 @@ function loadLogToForm(id) {
     showSection('input', '記録の修正');
 }
 
-function resetForm() {
-    document.getElementById('recordForm').reset();
-    document.getElementById('editId').value = "";
-    document.getElementById('saveBtn').innerText = "保存してカレンダーへ";
-    document.getElementById('deleteBtn').style.display = "none";
-    document.getElementById('cancelBtn').style.display = "none";
-    document.getElementById('medication').value = "true";
-    toggleMedTime();
-}
-
-document.getElementById('recordForm').onsubmit = (e) => {
+// 保存・更新処理
+document.getElementById('recordForm').onsubmit = async (e) => {
     e.preventDefault();
-    let logs = JSON.parse(localStorage.getItem('headacheLogs') || '[]');
     const editId = document.getElementById('editId').value;
     
-    const newLog = {
-        id: editId ? parseInt(editId) : Date.now(),
+    const data = {
         date: document.getElementById('date').value,
         start: document.getElementById('startTime').value,
         end: document.getElementById('endTime').value,
@@ -89,68 +100,108 @@ document.getElementById('recordForm').onsubmit = (e) => {
         timestamp: new Date(document.getElementById('date').value).getTime()
     };
 
-    if (editId) {
-        logs = logs.map(l => l.id == editId ? newLog : l);
-    } else {
-        logs.push(newLog);
+    try {
+        if (editId) {
+            await window.fs.updateDoc(window.fs.doc(window.db, "headacheLogs", editId), data);
+        } else {
+            await window.fs.addDoc(window.fs.collection(window.db, "headacheLogs"), data);
+        }
+        resetForm();
+        showSection('calendar', 'カレンダー');
+    } catch (err) {
+        console.error("Error: ", err);
+        alert("保存に失敗しました。Firebaseのルールを確認してください。");
     }
-
-    localStorage.setItem('headacheLogs', JSON.stringify(logs));
-    resetForm();
-    showSection('calendar', 'カレンダー');
 };
 
-function handleDelete() {
+// 削除処理
+async function handleDelete() {
     const id = document.getElementById('editId').value;
     if (!id || !confirm('この記録を削除しますか？')) return;
     
-    let logs = JSON.parse(localStorage.getItem('headacheLogs') || '[]');
-    logs = logs.filter(l => l.id != id);
-    localStorage.setItem('headacheLogs', JSON.stringify(logs));
-    
-    resetForm();
-    showSection('calendar', 'カレンダー');
+    try {
+        await window.fs.deleteDoc(window.fs.doc(window.db, "headacheLogs", id));
+        resetForm();
+        showSection('calendar', 'カレンダー');
+    } catch (err) {
+        alert("削除に失敗しました。");
+    }
 }
 
+// フォームリセット
+function resetForm() {
+    document.getElementById('recordForm').reset();
+    document.getElementById('editId').value = "";
+    document.getElementById('saveBtn').innerText = "保存してカレンダーへ";
+    document.getElementById('deleteBtn').style.display = "none";
+    document.getElementById('cancelBtn').style.display = "none";
+    document.getElementById('medication').value = "true";
+    toggleMedTime();
+}
+
+// 画面切り替え
 function showSection(id, title) {
     document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+    
     document.getElementById(id).classList.add('active');
     document.getElementById('pageTitle').innerText = title;
     document.getElementById('btn-' + id).classList.add('active');
-    if(id === 'calendar') { calendar.render(); calendar.updateSize(); calendar.setOption('events', getEvents()); }
+
+    if(id === 'calendar') {
+        calendar.render();
+        calendar.updateSize();
+        refreshEvents();
+    }
     if(id === 'report') updateReport();
     if(id === 'list') updateList();
 }
 
-function updateList() {
-    const logs = JSON.parse(localStorage.getItem('headacheLogs') || '[]');
+// 一覧表示
+async function updateList() {
+    const q = window.fs.query(window.fs.collection(window.db, "headacheLogs"), window.fs.orderBy("timestamp", "desc"));
+    const querySnapshot = await window.fs.getDocs(q);
+    
     const container = document.getElementById('logList');
-    container.innerHTML = logs.sort((a,b) => b.timestamp - a.timestamp).map(log => `
-        <div class="log-item" onclick="loadLogToForm(${log.id})">
-            <strong>${log.date}</strong> <span style="float:right; font-size:0.8rem;">${log.start}〜</span><br>
-            度合い: ${'★'.repeat(log.degree)} | 薬: ${log.medication ? '服用' : 'なし'}
-        </div>
-    `).join('') || '<p style="text-align:center; color:#999;">記録がありません</p>';
+    let html = "";
+    
+    querySnapshot.forEach((doc) => {
+        const log = doc.data();
+        html += `
+            <div class="log-item" onclick="loadLogToForm('${doc.id}')">
+                <strong>${log.date}</strong> <span style="float:right; font-size:0.8rem;">${log.start}〜</span><br>
+                度合い: ${'★'.repeat(log.degree)} | 薬: ${log.medication ? '服用' : 'なし'}
+            </div>
+        `;
+    });
+    container.innerHTML = html || '<p style="text-align:center; color:#999;">記録がありません</p>';
 }
 
-function toggleMedTime() {
-    const isMed = document.getElementById('medication').value === 'true';
-    document.getElementById('medTimeContainer').style.display = isMed ? 'block' : 'none';
-}
+// レポート表示
+async function updateReport() {
+    const q = window.fs.query(window.fs.collection(window.db, "headacheLogs"), window.fs.orderBy("timestamp", "desc"));
+    const querySnapshot = await window.fs.getDocs(q);
+    
+    const logs = [];
+    querySnapshot.forEach(doc => logs.push(doc.data()));
 
-function updateReport() {
-    const logs = JSON.parse(localStorage.getItem('headacheLogs') || '[]');
     const now = new Date();
     const currentMonth = now.toISOString().substring(0, 7);
     const thisMonthLogs = logs.filter(l => l.date.startsWith(currentMonth));
     const medCount = thisMonthLogs.filter(l => l.medication).length;
+
     let daysSince = "0";
     if (logs.length > 0) {
         const lastDate = new Date(Math.max(...logs.map(l => l.timestamp)));
         daysSince = Math.floor(Math.abs(now - lastDate) / (1000 * 60 * 60 * 24));
     }
+
     document.getElementById('countHeadache').innerText = thisMonthLogs.length;
     document.getElementById('countMed').innerText = medCount;
     document.getElementById('daysSince').innerText = daysSince;
+}
+
+function toggleMedTime() {
+    const isMed = document.getElementById('medication').value === 'true';
+    document.getElementById('medTimeContainer').style.display = isMed ? 'block' : 'none';
 }
