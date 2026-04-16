@@ -4,17 +4,27 @@ let currentUser = null;
 // ログイン状態の監視
 window.addEventListener('load', () => {
     window.auth.onAuthStateChanged(user => {
+        const appElement = document.getElementById('app');
+        const navElement = document.querySelector('.tab-bar');
+        const authOverlay = document.getElementById('authOverlay');
+
         if (user) {
             currentUser = user;
-            document.getElementById('authOverlay').style.display = 'none';
-            initCalendar(); // ログインしてからカレンダー初期化
+            // ログイン中：メイン画面を表示、ログイン画面を隠す
+            authOverlay.style.display = 'none';
+            appElement.style.display = 'block';
+            navElement.style.display = 'flex';
+            
+            initCalendar(); 
         } else {
             currentUser = null;
-            document.getElementById('authOverlay').style.display = 'block';
+            // 未ログイン：メイン画面を隠し、ログイン画面を表示
+            authOverlay.style.display = 'block';
+            appElement.style.display = 'none';
+            navElement.style.display = 'none';
         }
     });
 });
-
 // ログイン処理
 async function handleLogin() {
     const email = document.getElementById('loginEmail').value;
