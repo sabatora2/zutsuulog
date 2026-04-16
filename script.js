@@ -1,3 +1,64 @@
+ // --- script.js の冒頭に追加 ---
+let currentUser = null;
+
+// ログイン状態の監視
+window.addEventListener('load', () => {
+    window.auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('authOverlay').style.display = 'none';
+            initCalendar(); // ログインしてからカレンダー初期化
+        } else {
+            currentUser = null;
+            document.getElementById('authOverlay').style.display = 'block';
+        }
+    });
+});
+
+// ログイン処理
+async function handleLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const pw = document.getElementById('loginPw').value;
+    try {
+        await window.authFunc.signInWithEmailAndPassword(window.auth, email, pw);
+    } catch (err) {
+        document.getElementById('authError').innerText = "ログインに失敗しました。";
+    }
+}
+
+// ログアウト処理（必要ならどこかにボタンを作ってください）
+async function handleLogout() {
+    await window.authFunc.signOut(window.auth);
+    location.reload();
+}
+
+// --- データの保存部分を修正 (userIdを追加) ---
+document.getElementById('recordForm').onsubmit = async (e) => {
+    e.preventDefault();
+    if (!currentUser) return; // 未ログインなら何もしない
+
+    const data = {
+        userId: currentUser.uid, // ログインユーザーのIDを付与
+        date: document.getElementById('date').value,
+        // ...他の項目はそのまま...
+        timestamp: new Date(document.getElementById('date').value).getTime()
+    };
+    // ...保存処理はそのまま...
+};
+
+// --- 取得部分を修正 (自分自身のデータのみ取得) ---
+async function refreshEvents() {
+    if (!currentUser) return;
+    // queryに where("userId", "==", currentUser.uid) を追加
+    const q = window.fs.query(
+        window.fs.collection(window.db, "headacheLogs"), 
+        window.fs.where("userId", "==", currentUser.uid),
+        window.fs.orderBy("timestamp", "desc")
+    );
+    // ...以下取得処理...
+}
+
+
 let calendar;
 
 // Firebaseの準備ができるまで待機して初期化
