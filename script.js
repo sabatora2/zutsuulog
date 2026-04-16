@@ -158,9 +158,16 @@ async function loadLogToForm(id) {
 // 保存・更新処理
 document.getElementById('recordForm').onsubmit = async (e) => {
     e.preventDefault();
+    if (!window.auth.currentUser) {
+        alert("ログインセッションが切れています。");
+        return;
+    }
+
     const editId = document.getElementById('editId').value;
     
+    // 全てのデータに currentUser.uid を userId として含める
     const data = {
+        userId: window.auth.currentUser.uid, // これがルール通過に必須！
         date: document.getElementById('date').value,
         start: document.getElementById('startTime').value,
         end: document.getElementById('endTime').value,
@@ -180,8 +187,8 @@ document.getElementById('recordForm').onsubmit = async (e) => {
         resetForm();
         showSection('calendar', 'カレンダー');
     } catch (err) {
-        console.error("Error: ", err);
-        alert("保存に失敗しました。Firebaseのルールを確認してください。");
+        console.error("Firebase Error:", err);
+        alert("保存権限がありません。ログインし直すかルールを確認してください。");
     }
 };
 
