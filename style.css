@@ -126,3 +126,36 @@ input[type="radio"] { display: none; }
 .fc-theme-standard td, .fc-theme-standard th { border: 1px solid var(--border-color); }
 .fc-col-header-cell { background: #222; }
 .fc-day-today { background: rgba(125, 95, 255, 0.1) !important; }
+
+/* --- カレンダー全体のカスタマイズ --- */
+#calendarDisplay {
+    background-color: #2a2a2a; /* カレンダー内部を若干明るいグレーに */
+    border: 2px solid #ffffff;  /* 外枠をはっきりとした白に */
+    border-radius: 12px;       /* 角を少し丸く */
+    overflow: hidden;          /* 枠からはみ出さないように */
+    padding: 10px;
+}
+
+/* カレンダーのグリッド線の色を調整 */
+.fc-theme-standard td, 
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+    border: 1px solid #444 !important; /* 内側の線は目立ちすぎない色に */
+}
+
+/* 曜日ヘッダーの背景を少し変えて区別する */
+.fc-col-header-cell {
+    background-color: #333333 !important;
+    color: #ffffff !important;
+}
+
+/* 日付の数字の色 */
+.fc-daygrid-day-number {
+    color: #e0e0e0;
+    padding: 5px !important;
+}
+
+/* 今日の日付の背景色を少し強調 */
+.fc-day-today {
+    background-color: rgba(125, 95, 255, 0.2) !important;
+}
