@@ -141,49 +141,73 @@ document.getElementById('recordForm').onsubmit = async (e) => {
     }
 };
 
+
+// フォームへの読み込み（カレンダーや一覧から呼ばれる）
 async function loadLogToForm(id) {
     try {
+        // 特定のIDのドキュメントを直接取得
         const docRef = window.fs.doc(window.db, "headacheLogs", id);
-        const q = window.fs.query(window.fs.collection(window.db, "headacheLogs"));
-        const docSnap = await window.fs.getDocs(q);
-        
+        const docSnap = await window.fs.getDocs(window.fs.query(
+            window.fs.collection(window.db, "headacheLogs"),
+            window.fs.where("userId", "==", currentUser.uid)
+        ));
+
+        // 該当するデータを特定
         let log;
         docSnap.forEach(d => { if(d.id === id) log = d.data(); });
         
-        if (!log || log.userId !== currentUser.uid) return;
+        if (!log) {
+            console.error("対象のデータが見つかりません。");
+            return;
+        }
 
+        // 各入力フィールドに値をセット
         document.getElementById('editId').value = id;
         document.getElementById('date').value = log.date;
         document.getElementById('startTime').value = log.start;
         document.getElementById('endTime').value = log.end;
-        document.querySelector(`input[name="degree"][value="${log.degree}"]`).checked = true;
+        
+        // ラジオボタン（度合い）の選択
+        const degreeInput = document.querySelector(`input[name="degree"][value="${log.degree}"]`);
+        if (degreeInput) degreeInput.checked = true;
+
         document.getElementById('medication').value = log.medication.toString();
         document.getElementById('medTime').value = log.medTime || "";
         document.getElementById('memo').value = log.memo;
 
+        // 薬の服用時刻フィールドの表示切り替え
         toggleMedTime();
         
+        // ボタンの表示切り替え
         document.getElementById('saveBtn').innerText = "修正を保存する";
         document.getElementById('deleteBtn').style.display = "block";
         document.getElementById('cancelBtn').style.display = "block";
         
+        // 入力セクションへ移動
         showSection('input', '記録の修正');
+        
+        // 画面上部へスクロール
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
     } catch (err) {
         console.error("読み込みエラー:", err);
+        alert("データの読み込みに失敗しました。");
     }
 }
 
+// 削除処理
 async function handleDelete() {
     const id = document.getElementById('editId').value;
-    if (!id || !confirm('この記録を削除しますか？')) return;
+    if (!id || !confirm('この記録を完全に削除しますか？')) return;
     
     try {
         await window.fs.deleteDoc(window.fs.doc(window.db, "headacheLogs", id));
+        alert("削除しました。");
         resetForm();
         showSection('calendar', 'カレンダー');
     } catch (err) {
         console.error("削除エラー:", err);
-        alert("削除に失敗しました。");
+        alert("削除権限がないか、通信エラーが発生しました。");
     }
 }
 
