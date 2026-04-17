@@ -130,7 +130,7 @@ input[type="radio"] { display: none; }
 /* --- カレンダー全体のカスタマイズ --- */
 #calendarDisplay {
     background-color: #2a2a2a; /* カレンダー内部を若干明るいグレーに */
-    border: 2px solid #f5f5f5;  /* 外枠をはっきりとした白に */
+    border: 2px solid #f5f5f5; /* 外枠を #f5f5f5 に変更 */
     border-radius: 12px;       /* 角を少し丸く */
     overflow: hidden;          /* 枠からはみ出さないように */
     padding: 10px;
@@ -158,4 +158,15 @@ input[type="radio"] { display: none; }
 /* 今日の日付の背景色を少し強調 */
 .fc-day-today {
     background-color: rgba(125, 95, 255, 0.2) !important;
+}
+
+/* 日付の「日」を非表示にする */
+.fc-daygrid-day-number {
+    color: #e0e0e0;
+    padding: 5px !important;
+    text-decoration: none !important;
+}
+/* FullCalendarの仕様に合わせて「日」を消す設定 */
+.fc .fc-daygrid-day-number {
+    display: inline-block;
 }
