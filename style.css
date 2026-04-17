@@ -1,61 +1,128 @@
 :root {
-    --primary: #7d5fff; --bg: #f5f6fa; --card: #ffffff; --text: #2f3640; --danger: #ff4757;
+    /* ダークモード用カラー */
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-main: #e0e0e0;
+    --text-sub: #b0b0b0;
+    --border-color: #333;
+    --primary: #7d5fff;
+    --danger: #ff4757;
+
+    /* 度合い別カラー */
+    --color-low: #2ed573;
+    --color-mid: #ffa502;
+    --color-high: #ff4757;
 }
 
-/* ズームとスクロールの制御 */
+/* 全般設定 */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-html, body { overflow-x: hidden; width: 100%; position: relative; }
+html, body { overflow-x: hidden; width: 100%; position: relative; background-color: var(--bg-color); }
 
 body { 
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg); color: var(--text); margin: 0; font-size: 16px;
+    color: var(--text-main);
+    margin: 0;
+    font-size: 18px; /* 全体的にフォントを大きく */
 }
 
-header { background: var(--card); padding: 5px; text-align: center; border-bottom: 1px solid #eee; }
-header h1 { margin: 0; font-size: 0.9rem; color: #888; }
+header { 
+    background: var(--bg-color); 
+    padding: 10px; 
+    text-align: center; 
+    border-bottom: 1px solid var(--border-color); 
+}
+header h1 { margin: 0; font-size: 1.1rem; color: var(--text-sub); }
 
 main { padding: 15px; width: 100%; max-width: 500px; margin: 0 auto; }
 section { display: none; }
 section.active { display: block; }
 
-/* 入力ズーム防止: 16px以上に設定 */
+/* 入力フィールド */
+label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 1rem; color: var(--text-sub); }
+.field { margin-bottom: 20px; }
+
 input, select, textarea {
-    width: 100%; padding: 12px; font-size: 16px; 
-    border: 1px solid #ddd; border-radius: 8px; background: var(--card);
+    width: 100%; 
+    padding: 14px; 
+    font-size: 1.2rem; /* 入力文字を大きく */
+    border: 1px solid var(--border-color); 
+    border-radius: 8px; 
+    background: var(--card-bg);
+    color: var(--text-main);
 }
 
-label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 0.85rem; }
-.field { margin-bottom: 15px; }
-
-/* 時間入力の横並び調整 */
+/* 時間入力の横並び */
 .time-group { display: flex; gap: 10px; width: 100%; }
 .time-group .field { flex: 1; }
 
-/* 度合いボタンの幅を狭めて中央に */
-.degree-group { display: flex; gap: 8px; max-width: 300px; margin: 0 auto; }
+/* 度合いボタンのカスタマイズ */
+.degree-group { display: flex; gap: 10px; width: 100%; margin-top: 5px; }
 .degree-group label { 
-    flex: 1; text-align: center; background: #eee; padding: 10px;
-    border-radius: 8px; margin: 0; font-size: 0.9rem;
+    flex: 1; 
+    text-align: center; 
+    background: var(--card-bg); 
+    padding: 15px 0;
+    border-radius: 10px; 
+    margin: 0; 
+    font-size: 1.1rem;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: 0.3s;
 }
-input[type="radio"]:checked + label { background: var(--primary); color: white; }
+
+/* 選択時の色設定 (カレンダーの色に合わせる) */
+#d1:checked + .label-low { background-color: var(--color-low); border-color: var(--color-low); color: #fff; }
+#d2:checked + .label-mid { background-color: var(--color-mid); border-color: var(--color-mid); color: #fff; }
+#d3:checked + .label-high { background-color: var(--color-high); border-color: var(--color-high); color: #fff; }
 input[type="radio"] { display: none; }
 
 /* ボタン類 */
-.submit-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 10px; font-weight: bold; margin-bottom: 10px; }
-.delete-full-btn { width: 100%; background: white; color: var(--danger); border: 2px solid var(--danger); padding: 14px; border-radius: 10px; font-weight: bold; margin-bottom: 10px; }
-.cancel-btn { width: 100%; background: #999; color: white; border: none; padding: 10px; border-radius: 10px; }
-
-.spacer { height: 120px; } /* 下部メニューとの重なり防止 */
+.submit-btn { 
+    width: 100%; background: var(--primary); color: white; border: none; 
+    padding: 18px; border-radius: 12px; font-weight: bold; font-size: 1.2rem; margin-bottom: 15px; 
+}
+.delete-full-btn { 
+    width: 100%; background: transparent; color: var(--danger); border: 2px solid var(--danger); 
+    padding: 16px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; 
+}
+.cancel-btn { 
+    width: 100%; background: #555; color: white; border: none; 
+    padding: 12px; border-radius: 12px; font-size: 1rem; 
+}
 
 /* 一覧カード */
-.log-item { background:#fff; padding:15px; border-radius:10px; margin-bottom:10px; border-left:5px solid var(--primary); }
-.log-item:active { background: #f0f0f0; }
+.log-item { 
+    background: var(--card-bg); 
+    padding: 18px; 
+    border-radius: 12px; 
+    margin-bottom: 12px; 
+    border-left: 6px solid var(--primary); 
+    font-size: 1.1rem;
+}
+.log-item:active { background: #2a2a2a; }
 
+/* タブバー */
 .tab-bar {
-    position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
-    background: var(--card); display: flex; border-top: 1px solid #ddd;
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 75px;
+    background: var(--card-bg); display: flex; border-top: 1px solid var(--border-color);
     padding-bottom: env(safe-area-inset-bottom); z-index: 1000;
 }
-.tab-bar button { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; }
+.tab-bar button { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #777; }
 .tab-bar button.active { color: var(--primary); }
-.tab-bar span { font-size: 10px; }
+.tab-bar .material-icons { font-size: 28px; }
+.tab-bar span { font-size: 12px; margin-top: 4px; }
+
+.spacer { height: 120px; }
+
+/* 統計セクションの調整 */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.stat-item { background: var(--card-bg); padding: 20px; border-radius: 12px; text-align: center; }
+.stat-item.full { grid-column: span 2; }
+.stat-label { display: block; font-size: 0.9rem; color: var(--text-sub); margin-bottom: 10px; }
+.stat-value { font-size: 1.8rem; font-weight: bold; }
+
+/* カレンダーのダークモード微調整 */
+.fc { color: var(--text-main); }
+.fc-theme-standard td, .fc-theme-standard th { border: 1px solid var(--border-color); }
+.fc-col-header-cell { background: #222; }
+.fc-day-today { background: rgba(125, 95, 255, 0.1) !important; }
