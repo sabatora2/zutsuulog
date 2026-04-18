@@ -172,3 +172,38 @@ input[type="radio"] { display: none; }
     font-size: 0.9rem;
     color: #e0e0e0;
 }
+
+/* 一覧アイテム全体のコンパクト化 */
+.log-item { 
+    background: var(--card-bg); 
+    padding: 8px 12px; /* 余白をさらに狭く */
+    border-radius: 8px; 
+    margin-bottom: 8px; 
+    border-left: 4px solid var(--primary); 
+}
+
+/* 1行目: 日付と時間 */
+.log-line-1 {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+
+/* 2行目: 度合いと薬 */
+.log-line-2 {
+    display: flex;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: var(--text-sub);
+    margin-bottom: 2px;
+}
+
+/* 3行目: メモ（1行で省略表示） */
+.log-line-3 {
+    font-size: 0.85rem;
+    color: #888;
+    white-space: nowrap;      /* 改行させない */
+    overflow: hidden;         /* はみ出しを隠す */
+    text-overflow: ellipsis;  /* 長い場合に ... を出す */
+}
