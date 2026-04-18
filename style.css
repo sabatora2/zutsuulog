@@ -130,7 +130,7 @@ input[type="radio"] { display: none; }
 /* --- カレンダー全体のカスタマイズ --- */
 #calendarDisplay {
     background-color: #2a2a2a; /* カレンダー内部を若干明るいグレーに */
-    border: 2px solid #121212; /* 外枠を #f5f5f5 に変更 */
+    border: 2px solid #333; /* 外枠を #f5f5f5 に変更 */
     border-radius: 12px;       /* 角を少し丸く */
     overflow: hidden;          /* 枠からはみ出さないように */
     padding: 10px;
