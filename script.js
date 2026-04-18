@@ -325,7 +325,7 @@ function initCalendar() {
     refreshEvents();
 }
 
-// --- 修正時のデータ反映不具合の修正（メモの追加と確実な反映） ---
+// --- 修正画面でのデータ読み込み不具合の修正 ---
 async function loadLogToForm(id) {
     try {
         const docRef = window.fs.doc(window.db, "headacheLogs", id);
@@ -341,26 +341,24 @@ async function loadLogToForm(id) {
 
         // フォームへの値セット
         document.getElementById('editId').value = id;
-        document.getElementById('date').value = log.date || "";
+        document.getElementById('date').value = log.date;
         document.getElementById('startTime').value = log.start || "";
         document.getElementById('endTime').value = log.end || "";
         
-        // メモのデータをセット（ここが修正ポイントです）
-        document.getElementById('memo').value = log.memo || "";
-
         // Flatpickrの表示更新
         if(document.getElementById('date')._flatpickr) document.getElementById('date')._flatpickr.setDate(log.date);
         if(document.getElementById('startTime')._flatpickr) document.getElementById('startTime')._flatpickr.setDate(log.start);
         if(document.getElementById('endTime')._flatpickr) document.getElementById('endTime')._flatpickr.setDate(log.end);
 
-        // 度合いのラジオボタン選択
         const degreeInput = document.querySelector(`input[name="degree"][value="${log.degree}"]`);
         if (degreeInput) degreeInput.checked = true;
 
-        // 薬の服用と時刻
         document.getElementById('medication').value = log.medication.toString();
         document.getElementById('medTime').value = log.medTime || "";
         if(document.getElementById('medTime')._flatpickr) document.getElementById('medTime')._flatpickr.setDate(log.medTime || "");
+
+        // メモのセット（ここが修正ポイント）
+        document.getElementById('memo').value = log.memo || "";
 
         toggleMedTime();
         
@@ -375,7 +373,7 @@ async function loadLogToForm(id) {
     }
 }
 
-// --- 一覧表示の3行レイアウト変更 ---
+// --- 一覧表示を3行かつコンパクトに修正 ---
 async function updateList() {
     if (!currentUser) return;
     const q = window.fs.query(
@@ -391,20 +389,20 @@ async function updateList() {
         
         querySnapshot.forEach((doc) => {
             const log = doc.data();
-            const medInfo = log.medication ? `服用: ${log.medTime || '時刻未入力'}` : 'なし';
-            const memoText = log.memo ? log.memo : '<span style="color:#666;">（メモなし）</span>';
+            const medInfo = log.medication ? `服用: ${log.medTime || '--:--'}` : 'なし';
             
             html += `
-                <div class="log-item" onclick="loadLogToForm('${doc.id}')" style="margin-bottom:15px; padding:15px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #333; padding-bottom:5px;">
-                        <strong style="font-size:1.1rem;">${log.date}</strong>
-                        <span style="font-size:0.9rem; color:#bbb;">${log.start} 〜 ${log.end || '--:--'}</span>
+                <div class="log-item" onclick="loadLogToForm('${doc.id}')">
+                    <div class="log-line-1">
+                        <strong>${log.date}</strong>
+                        <span>${log.start} 〜 ${log.end || '--:--'}</span>
                     </div>
-                    <div style="font-size:1rem; margin-bottom:8px; color:#e0e0e0;">
-                        度合い: ${'★'.repeat(log.degree)} <span style="margin-left:15px;">薬: ${medInfo}</span>
+                    <div class="log-line-2">
+                        <span>度合い: ${'★'.repeat(log.degree)}</span>
+                        <span>薬: ${medInfo}</span>
                     </div>
-                    <div style="font-size:0.9rem; color:#b0b0b0; background:#2a2a2a; padding:8px; border-radius:5px; white-space: pre-wrap;">
-                        ${memoText}
+                    <div class="log-line-3">
+                        ${log.memo || '(メモなし)'}
                     </div>
                 </div>
             `;
