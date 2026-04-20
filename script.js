@@ -78,10 +78,10 @@ function initCalendar() {
     refreshEvents();
 }
 
+// --- カレンダーのイベント更新処理 ---
 async function refreshEvents() {
     if (!currentUser || !window.db) return;
     
-    // 自分のデータのみを取得するようにフィルタリング
     const q = window.fs.query(
         window.fs.collection(window.db, "headacheLogs"),
         window.fs.where("userId", "==", currentUser.uid),
@@ -93,11 +93,22 @@ async function refreshEvents() {
         const events = [];
         querySnapshot.forEach((doc) => {
             const log = doc.data();
+            
+            // 色の判定ロジック
+            let eventColor;
+            if (!log.medication) {
+                eventColor = '#3498db'; // 薬なし：青
+            } else {
+                if (log.degree == '3') eventColor = '#ff4757';      // 重：赤
+                else if (log.degree == '2') eventColor = '#ffa502'; // 中：オレンジ
+                else eventColor = '#2ed573';                       // 軽：緑
+            }
+
             events.push({
                 id: doc.id,
                 title: log.degree == '3' ? '重' : (log.degree == '2' ? '中' : '軽'),
                 start: log.date,
-                color: log.degree == '3' ? '#ff4757' : (log.degree == '2' ? '#ffa502' : '#2ed573')
+                color: eventColor
             });
         });
         calendar.setOption('events', events);
@@ -105,6 +116,7 @@ async function refreshEvents() {
         console.error("データ取得エラー:", err);
     }
 }
+
 
 // --- 4. データ操作（保存・修正・削除） ---
 document.getElementById('recordForm').onsubmit = async (e) => {
@@ -241,6 +253,7 @@ function showSection(id, title) {
     if(id === 'list') updateList();
 }
 
+// --- 一覧表示の更新処理 ---
 async function updateList() {
     if (!currentUser) return;
     const q = window.fs.query(
@@ -256,18 +269,41 @@ async function updateList() {
         
         querySnapshot.forEach((doc) => {
             const log = doc.data();
+            
+            // 左線の色判定
+            let borderColor;
+            if (!log.medication) {
+                borderColor = '#3498db'; // 薬なし：青
+            } else {
+                if (log.degree == '3') borderColor = '#ff4757';
+                else if (log.degree == '2') borderColor = '#ffa502';
+                else borderColor = '#2ed573';
+            }
+
+            const medInfo = log.medication ? `服用: ${log.medTime || '--:--'}` : 'なし';
+            
             html += `
-                <div class="log-item" onclick="loadLogToForm('${doc.id}')">
-                    <strong>${log.date}</strong> <span style="float:right; font-size:0.8rem;">${log.start}〜</span><br>
-                    度合い: ${'★'.repeat(log.degree)} | 薬: ${log.medication ? '服用' : 'なし'}
+                <div class="log-item" onclick="loadLogToForm('${doc.id}')" style="border-left-color: ${borderColor}">
+                    <div class="log-line-1">
+                        <strong>${log.date}</strong>
+                        <span>${log.start} 〜 ${log.end || '--:--'}</span>
+                    </div>
+                    <div class="log-line-2">
+                        <span>度合い: ${'★'.repeat(log.degree)}</span>
+                        <span>薬: ${medInfo}</span>
+                    </div>
+                    <div class="log-line-3">
+                        ${log.memo || '(メモなし)'}
+                    </div>
                 </div>
             `;
         });
         container.innerHTML = html || '<p style="text-align:center; color:#999;">記録がありません</p>';
     } catch (err) {
-        console.error("リスト更新エラー:", err);
+        console.error("List Update Error:", err);
     }
 }
+
 
 async function updateReport() {
     if (!currentUser) return;
