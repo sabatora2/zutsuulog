@@ -117,7 +117,6 @@ async function refreshEvents() {
     }
 }
 
-
 // --- 4. データ操作（保存・修正・削除） ---
 document.getElementById('recordForm').onsubmit = async (e) => {
     e.preventDefault();
@@ -253,7 +252,6 @@ function showSection(id, title) {
     if(id === 'list') updateList();
 }
 
-// --- 一覧表示の更新処理 ---
 async function updateList() {
     if (!currentUser) return;
     const q = window.fs.query(
@@ -269,41 +267,18 @@ async function updateList() {
         
         querySnapshot.forEach((doc) => {
             const log = doc.data();
-            
-            // 左線の色判定
-            let borderColor;
-            if (!log.medication) {
-                borderColor = '#3498db'; // 薬なし：青
-            } else {
-                if (log.degree == '3') borderColor = '#ff4757';
-                else if (log.degree == '2') borderColor = '#ffa502';
-                else borderColor = '#2ed573';
-            }
-
-            const medInfo = log.medication ? `服用: ${log.medTime || '--:--'}` : 'なし';
-            
             html += `
-                <div class="log-item" onclick="loadLogToForm('${doc.id}')" style="border-left-color: ${borderColor}">
-                    <div class="log-line-1">
-                        <strong>${log.date}</strong>
-                        <span>${log.start} 〜 ${log.end || '--:--'}</span>
-                    </div>
-                    <div class="log-line-2">
-                        <span>度合い: ${'★'.repeat(log.degree)}</span>
-                        <span>薬: ${medInfo}</span>
-                    </div>
-                    <div class="log-line-3">
-                        ${log.memo || '(メモなし)'}
-                    </div>
+                <div class="log-item" onclick="loadLogToForm('${doc.id}')">
+                    <strong>${log.date}</strong> <span style="float:right; font-size:0.8rem;">${log.start}〜</span><br>
+                    度合い: ${'★'.repeat(log.degree)} | 薬: ${log.medication ? '服用' : 'なし'}
                 </div>
             `;
         });
         container.innerHTML = html || '<p style="text-align:center; color:#999;">記録がありません</p>';
     } catch (err) {
-        console.error("List Update Error:", err);
+        console.error("リスト更新エラー:", err);
     }
 }
-
 
 async function updateReport() {
     if (!currentUser) return;
@@ -409,7 +384,7 @@ async function loadLogToForm(id) {
     }
 }
 
-// --- 一覧表示を3行かつコンパクトに修正 ---
+// --- 一覧表示の更新処理 ---
 async function updateList() {
     if (!currentUser) return;
     const q = window.fs.query(
@@ -425,10 +400,21 @@ async function updateList() {
         
         querySnapshot.forEach((doc) => {
             const log = doc.data();
+            
+            // 左線の色判定
+            let borderColor;
+            if (!log.medication) {
+                borderColor = '#3498db'; // 薬なし：青
+            } else {
+                if (log.degree == '3') borderColor = '#ff4757';
+                else if (log.degree == '2') borderColor = '#ffa502';
+                else borderColor = '#2ed573';
+            }
+
             const medInfo = log.medication ? `服用: ${log.medTime || '--:--'}` : 'なし';
             
             html += `
-                <div class="log-item" onclick="loadLogToForm('${doc.id}')">
+                <div class="log-item" onclick="loadLogToForm('${doc.id}')" style="border-left-color: ${borderColor}">
                     <div class="log-line-1">
                         <strong>${log.date}</strong>
                         <span>${log.start} 〜 ${log.end || '--:--'}</span>
