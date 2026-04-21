@@ -33,7 +33,6 @@
   window.authFunc = { signInWithEmailAndPassword, signOut, onAuthStateChanged };
   window.fs = { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, where };
 </script>
-
 </head>
 <body>
     <div id="authOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#121212; z-index:2000; padding:20px; box-sizing:border-box;">
@@ -115,6 +114,10 @@
 
         <section id="calendar">
             <div id="calendarDisplay"></div>
+            <div id="calendarStats" class="mini-stats">
+                <div>今月の頭痛<span id="calCountHeadache">0</span></div>
+                <div>薬の服用<span id="calCountMed">0</span></div>
+            </div>
             <div class="spacer"></div>
         </section>
 
@@ -127,6 +130,8 @@
             <div class="stats-grid">
                 <div class="stat-item"><span class="stat-label">今月の頭痛</span><span class="stat-value"><span id="countHeadache">0</span>回</span></div>
                 <div class="stat-item"><span class="stat-label">今月の服用</span><span class="stat-value"><span id="countMed">0</span>回</span></div>
+                <div class="stat-item"><span class="stat-label">今年の頭痛(1月〜)</span><span class="stat-value"><span id="yearCountHeadache">0</span>回</span></div>
+                <div class="stat-item"><span class="stat-label">今年の服用(1月〜)</span><span class="stat-value"><span id="yearCountMed">0</span>回</span></div>
                 <div class="stat-item full"><span class="stat-label">最後の頭痛から</span><span class="stat-value"><span id="daysSince">0</span>日経過</span></div>
             </div>
         </section>
