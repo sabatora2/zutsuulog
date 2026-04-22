@@ -60,6 +60,7 @@ async function handleLogout() {
 }
 
 // --- 3. カレンダー関連 ---
+// --- 1. カレンダー初期化の修正 ---
 function initCalendar() {
     const calendarEl = document.getElementById('calendarDisplay');
     calendar = new FullCalendar.Calendar(calendarEl, {
@@ -70,6 +71,10 @@ function initCalendar() {
         },
         height: 'auto',
         headerToolbar: { left: 'prev', center: 'title', right: 'next' },
+        // 月が切り替わった時に実行される処理を追加
+        datesSet: function(info) {
+            updateMonthlyStats(info.start, info.end);
+        },
         eventClick: (info) => {
             loadLogToForm(info.event.id);
         }
@@ -318,6 +323,50 @@ async function updateReport() {
         console.error("Report Update Error:", err);
     }
 }
+
+// --- 2. 表示されている月に合わせて統計を更新する関数を追加 ---
+async function updateMonthlyStats(viewStart, viewEnd) {
+    if (!currentUser || !window.db) return;
+
+    const q = window.fs.query(
+        window.fs.collection(window.db, "headacheLogs"),
+        window.fs.where("userId", "==", currentUser.uid)
+    );
+
+    try {
+        const querySnapshot = await window.fs.getDocs(q);
+        let monthHeadache = 0;
+        let monthMed = 0;
+
+        querySnapshot.forEach((doc) => {
+            const log = doc.data();
+            const logDate = new Date(log.date);
+
+            // 表示されているカレンダーの範囲内（前月末や翌月頭の遊び分を除く「今月」のみ）を判定
+            // FullCalendarのinfo.start/endは表示領域全域を指すため、
+            // カレンダーの中央付近の日付から「現在の月」を特定してフィルタリングします。
+            const currentMonth = calendar.getDate().getMonth();
+            const currentYear = calendar.getDate().getFullYear();
+
+            if (logDate.getMonth() === currentMonth && logDate.getFullYear() === currentYear) {
+                monthHeadache++;
+                if (log.medication) {
+                    monthMed++;
+                }
+            }
+        });
+
+        // カレンダー下部の表示を更新
+        const calH = document.getElementById('calCountHeadache');
+        const calM = document.getElementById('calCountMed');
+        if (calH) calH.innerText = monthHeadache + "回";
+        if (calM) calM.innerText = monthMed + "回";
+
+    } catch (err) {
+        console.error("月間統計の更新エラー:", err);
+    }
+}
+
 
 function toggleMedTime() {
     const isMed = document.getElementById('medication').value === 'true';
