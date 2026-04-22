@@ -91,4 +91,11 @@ input[type="radio"] { display: none; }
     background: #2a2a2a; border: 2px solid #f5f5f5; border-radius: 12px; overflow: hidden; padding: 5px;
 }
 .fc-theme-standard td, .fc-theme-standard th { border: 1px solid #444 !important; }
+
+/* 曜日ヘッダーの背景を少し変えて区別する */
+.fc-col-header-cell {
+    background-color: #333333 !important;
+    color: #ffffff !important;
+}
+
 .fc-daygrid-day-number { color: #e0e0e0; padding: 5px !important; text-decoration: none !important; }
