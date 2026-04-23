@@ -88,7 +88,8 @@ input[type="radio"] { display: none; }
 
 /* カレンダー外枠と「日」の非表示 */
 #calendarDisplay {
-    background: #2a2a2a; border: 2px solid #f5f5f5; border-radius: 12px; overflow: hidden; padding: 5px;
+    background: #2a2a2a; border: 2px solid #808080; /* 外枠をグレーに変更 */
+    border-radius: 12px; overflow: hidden; padding: 5px;
 }
 .fc-theme-standard td, .fc-theme-standard th { border: 1px solid #444 !important; }
 
